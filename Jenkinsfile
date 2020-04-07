@@ -350,7 +350,17 @@ pipeline {
                   org.activiti.cloud.query:activiti-cloud-query-dependencies $VERSION \
                   org.activiti.cloud.rb:activiti-cloud-runtime-bundle-dependencies $VERSION \
                   org.activiti.cloud.common:activiti-cloud-service-common-dependencies $VERSION \
-                  --merge false'''
+                  --merge false
+                  '''
+
+            sh '''updatebot push-version --kind helm activiti-cloud-dependencies $VERSIOM \
+                        runtime-bundle $VERSIOM \
+                        activiti-cloud-connector $VERSIOM \
+                        activiti-cloud-query $VERSIOM \
+                        activiti-cloud-modeling $VERSIOM
+                  '''
+
+            sh '''updatebot push-version --kind make ACTIVITI_CLOUD_ACCEPTANCE_SCENARIOUS_VERSION $VERSION'''
           }
         }
       }
