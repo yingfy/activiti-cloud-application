@@ -238,7 +238,13 @@ pipeline {
       }
       steps {
         container('maven') {
-          sh "updatebot --dry push-version --kind helm activiti-cloud-dependencies $VERSION $ACTIVITI_CLOUD_FULL_CHART_VERSIONS"
+          sh '''updatebot --dry push-version --kind helm activiti-cloud-dependencies $VERSION \
+                        runtime-bundle $VERSION \
+                        activiti-cloud-connector $VERSION \
+                        activiti-cloud-query $VERSION \
+                        activiti-cloud-modeling $VERSION
+                  '''
+
           sh """cd  .updatebot-repos/github/activiti/activiti-cloud-full-chart/charts/activiti-cloud-full-example/ && \
                     rm -rf requirements.lock && \
                     rm -rf charts && \
