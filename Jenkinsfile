@@ -357,7 +357,7 @@ pipeline {
       }
       post {
         success {
-          slackSend(channel: "#activiti-community-builds", message: "Activiti Application :: New Helm Chart verison $TAG_NAME released.", sendAsText: true)
+          slackSend(channel: "#activiti-community-builds", message: "Activiti Application :: New Helm Chart verison $VERSION released.", sendAsText: true)
         }
       }
     }
