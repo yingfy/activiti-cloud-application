@@ -353,11 +353,11 @@ pipeline {
                   --merge false
                   '''
 
-            sh '''updatebot push-version --kind helm activiti-cloud-dependencies $VERSIOM \
-                        runtime-bundle $VERSIOM \
-                        activiti-cloud-connector $VERSIOM \
-                        activiti-cloud-query $VERSIOM \
-                        activiti-cloud-modeling $VERSIOM
+            sh '''updatebot push-version --kind helm activiti-cloud-dependencies $VERSION \
+                        runtime-bundle $VERSION \
+                        activiti-cloud-connector $VERSION \
+                        activiti-cloud-query $VERSION \
+                        activiti-cloud-modeling $VERSION
                   '''
 
             sh '''updatebot push-version --kind make ACTIVITI_CLOUD_ACCEPTANCE_SCENARIOUS_VERSION $VERSION'''
