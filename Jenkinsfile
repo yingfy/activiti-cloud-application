@@ -337,8 +337,7 @@ pipeline {
       steps {
         container('maven') {
           retry(5) {
-            sh '''
-                  updatebot push-version --kind maven \
+            sh '''updatebot push-version --kind maven \
                   org.activiti.cloud.modeling:activiti-cloud-modeling-dependencies $VERSION \
                   org.activiti.cloud.audit:activiti-cloud-audit-dependencies $VERSION \
                   org.activiti.cloud.api:activiti-cloud-api-dependencies $VERSION \
@@ -350,8 +349,8 @@ pipeline {
                   org.activiti.cloud.notifications.graphql:activiti-cloud-notifications-graphql-dependencies $VERSION \
                   org.activiti.cloud.query:activiti-cloud-query-dependencies $VERSION \
                   org.activiti.cloud.rb:activiti-cloud-runtime-bundle-dependencies $VERSION \
-                  org.activiti.cloud.common:activiti-cloud-service-common-dependencies $VERSION
-                  '''
+                  org.activiti.cloud.common:activiti-cloud-service-common-dependencies $VERSION \
+                  --merge false'''
           }
         }
       }
