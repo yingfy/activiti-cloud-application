@@ -18,7 +18,7 @@ pipeline {
     REALM = "activiti"
     APP_NAME = 'activiti-cloud-application'
     JX_VERSION = jx_release_version()
-    VERSION = "$JX_VERSION-TEST"
+//    VERSION = "$JX_VERSION"
     CHARTMUSEUM_CREDS = credentials('jenkins-x-chartmuseum')
     GITHUB_CHARTS_REPO = "https://github.com/Activiti/activiti-cloud-helm-charts.git"
     GITHUB_HELM_REPO_URL = "https://activiti.github.io/activiti-cloud-helm-charts/"
@@ -98,7 +98,17 @@ pipeline {
       }
     }
 
-    stage('Build Releass for apps') {
+    stage('Build Releases for apps') {
+      when {
+        anyOf {
+          tag "$RELEASE_TAG_REGEX";
+          branch "$RELEASE_BRANCH";
+        }
+      }
+
+      environment {
+        VERSION = version()
+      }
       steps {
         container('maven') {
           // ensure we're not on a detached head
@@ -143,6 +153,16 @@ pipeline {
     }
 
     stage('Promote to Environments') {
+      when {
+        anyOf {
+          tag "$RELEASE_TAG_REGEX";
+          branch "$RELEASE_BRANCH";
+        }
+      }
+
+      environment {
+        VERSION = version()
+      }
       steps {
         container('maven') {
           script {
@@ -189,6 +209,9 @@ pipeline {
     }
 
     stage('Build Release for acceptance test') {
+      environment {
+        VERSION = version()
+      }
       steps {
         container('maven') {
           dir("activiti-cloud-acceptance-scenarios") {
@@ -203,6 +226,16 @@ pipeline {
     }
 
     stage('Build And Deploy Helm Chart') {
+      when {
+        anyOf {
+          tag "$RELEASE_TAG_REGEX";
+          branch "$RELEASE_BRANCH";
+        }
+      }
+
+      environment {
+        VERSION = version()
+      }
       steps {
         container('maven') {
           sh "updatebot --dry push-version --kind helm activiti-cloud-dependencies $VERSION $ACTIVITI_CLOUD_FULL_CHART_VERSIONS"
@@ -232,6 +265,16 @@ pipeline {
     }
 
     stage("Run Acceptance Scenarios") {
+      when {
+        anyOf {
+          tag "$RELEASE_TAG_REGEX";
+          branch "$RELEASE_BRANCH";
+        }
+      }
+
+      environment {
+        VERSION = version()
+      }
       parallel {
         stage("Modeling Acceptance Tests") {
           steps {
@@ -288,11 +331,14 @@ pipeline {
           branch "$RELEASE_BRANCH";
         }
       }
+      environment {
+        VERSION = version()
+      }
       steps {
         container('maven') {
           retry(5) {
             sh '''
-                  updatebot push-version --dry --kind maven \
+                  updatebot push-version --kind maven \
                   org.activiti.cloud.modeling:activiti-cloud-modeling-dependencies $VERSION \
                   org.activiti.cloud.audit:activiti-cloud-audit-dependencies $VERSION \
                   org.activiti.cloud.api:activiti-cloud-api-dependencies $VERSION \
@@ -306,7 +352,6 @@ pipeline {
                   org.activiti.cloud.rb:activiti-cloud-runtime-bundle-dependencies $VERSION \
                   org.activiti.cloud.common:activiti-cloud-service-common-dependencies $VERSION
                   '''
-//              sh 'make updatebot/push-version'
           }
         }
       }
@@ -357,5 +402,13 @@ def hel_version() {
   container('maven') {
     return sh(script: "echo cat VERSION |rev|sed 's/\\./-/'|rev", returnStdout: true).trim()
 
+  }
+
+
+}
+
+def version() {
+  container('maven') {
+    return sh(script: "echo \$(cat VERSION)", returnStdout: true).trim()
   }
 }
