@@ -4,7 +4,7 @@ NAME := activiti-cloud-modeling
 ORG := $(or $(ORG),activiti)
 APP_NAME := $(or $(APP_NAME),$(NAME))
 OS := $(shell uname)
-RELEASE_VERSION := $(shell cat ../../VERSION)
+RELEASE_VERSION := $(or $(VERSION),$(shell cat ../../VERSION))
 RELEASE_ARTIFACT := $(or $(RELEASE_ARTIFACT),$(APP_NAME))
 
 GITHUB_CHARTS_REPO := $(or $(GITHUB_CHARTS_REPO),$(shell git config --get remote.origin.url))
@@ -63,9 +63,5 @@ updatebot/push-version:
 	$(eval MODELING_DEPENDENCIES_VERSION=$(shell mvn help:evaluate -Dexpression=activiti-cloud-modeling-dependencies.version -q -DforceStdout -f ../../pom.xml))
 	$(eval MAVEN_VERSIONS=org.activiti.cloud.examples:activiti-cloud-modeling $(RELEASE_VERSION) org.activiti.cloud.modeling:activiti-cloud-modeling-dependencies $(MODELING_DEPENDENCIES_VERSION))
 	
-	@echo Doing updatebot push-version.....
-	for number in 1 2; do \
-		updatebot -d ../../ push-version --kind maven $(MAVEN_VERSIONS); \
-		rm -rf ../../.updatebot-repos/; \
-		sleep $$[ ( $$RANDOM % 10 )  + 1 ]s; \
-	done	
+	updatebot -d ../../ push-version --kind maven $(MAVEN_VERSIONS); 
+
